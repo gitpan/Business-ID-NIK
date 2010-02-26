@@ -2,11 +2,9 @@
 
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 16;
 
-BEGIN {
-    use_ok( 'Business::ID::NIK' );
-}
+use Business::ID::NIK;
 
 ok(!(validate_nik("") ? 1:0), "procedural style (1)");
 ok((validate_nik("01 0000 010101 0001") ? 1:0), "procedural style (2)");

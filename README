@@ -1,48 +1,130 @@
-Business-ID-NIK
+NAME
+    Business::ID::NIK - Validate Indonesian citizenship registration number
+    (NIK)
 
-This module can be used to validate Indonesian citizenship
-registration number, Nomor Induk Kependudukan (NIK), or more popularly
-known as Nomor Kartu Tanda Penduduk (Nomor KTP), because NIK is
-displayed on the KTP (citizen identity card).
+VERSION
+    version 0.02
 
-INSTALLATION
+SYNOPSIS
+        use Business::ID::NIK;
+    
+        # OO-style
 
-To install this module, run the following commands:
+        my $nik = Business::ID::NIK->new($str);
+        die "Invalid NIK!" unless $nik->validate;
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+        print $nik->area_code, "\n";
+        print $nik->date_of_birth, "\n"; # also, dob()
+        print $nik->gender, "\n"; # M for male, or F for female
+        print $nik->serial, "\n";
 
-SUPPORT AND DOCUMENTATION
+        # procedural style
 
-After installing, you can find documentation for this module with the
-perldoc command.
+        validate_nik($str) or die "Invalid NIK!";
 
-    perldoc Business::ID::NIK
+DESCRIPTION
+    This module can be used to validate Indonesian citizenship registration
+    number, Nomor Induk Kependudukan (NIK), or more popularly known as Nomor
+    Kartu Tanda Penduduk (Nomor KTP), because NIK is displayed on the KTP
+    (citizen identity card).
 
-You can also look for information at:
+    NIK is composed of 16 digits as follow:
 
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Business-ID-NIK
+     pp.DDSS.ddmmyy.ssss
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Business-ID-NIK
+    pp.DDSS is a 6-digit area code where the NIK was registered (it used to
+    be but nowadays not always [citation needed] composed as: pp 2-digit
+    province code, DD 2-digit city/district [kota/kabupaten] code, SS
+    2-digit subdistrict [kecamatan] code), ddmmyy is date of birth of the
+    citizen (dd will be added by 40 for female), ssss is 4-digit serial
+    starting from 1.
 
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Business-ID-NIK
+METHODS
+  new $str
+    Create a new "Business::ID::NIK" object.
 
-    Search CPAN
-        http://search.cpan.org/dist/Business-ID-NIK/
+  validate()
+    Return true if NIK is valid, or false if otherwise. In the case of NIK
+    being invalid, you can call the errstr() method to get a description of
+    the error.
 
+  errstr()
+    Return validation error of NIK, or undef if no error is found. See
+    "validate()".
 
-COPYRIGHT AND LICENCE
+  normalize()
+    Return formatted NIK, or undef if NIK is invalid.
 
-Copyright (C) 2009 Steven Haryanto
+  pretty()
+    Alias for normalize().
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
+  area_code()
+    Return 6-digit province code + city/district + subdistrict component of
+    NIK.
 
-See http://dev.perl.org/licenses/ for more information.
+  date_of_birth()
+    Return a DateTime object containing the date of birth component of the
+    NIK, or undef if NIK is invalid.
+
+  dob()
+    Alias for day_of_birth()
+
+  gender()
+    Return gender ('M' for male and 'F' for female), or undef if NIK is
+    invalid.
+
+  serial()
+    Return 4-digit serial component of NIK, or undef if NIK is invalid.
+
+FUNCTIONS
+  validate_nik($string)
+    Return true if NIK is valid, or false if otherwise. If you want to know
+    the error details, you need to use the OO version (see the "errstr"
+    method).
+
+    Exported by default.
+
+BUGS
+    The list of valid province codes in the program might need to be updated
+    from time to time.
+
+    Please report any bugs or feature requests to "bug-business-id-nik at
+    rt.cpan.org", or through the web interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Business-ID-NIK>. I will
+    be notified, and then you'll automatically be notified of progress on
+    your bug as I make changes.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc Business::ID::NIK
+
+    You can also look for information at:
+
+    *   RT: CPAN's request tracker
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Business-ID-NIK>
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/Business-ID-NIK>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/Business-ID-NIK>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/Business-ID-NIK/>
+
+    1;
+
+AUTHOR
+      Steven Haryanto <stevenharyanto@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2010 by Steven Haryanto.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
 
