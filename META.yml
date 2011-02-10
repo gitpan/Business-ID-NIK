@@ -2,7 +2,12 @@
 abstract: 'Validate Indonesian citizenship registration number (NIK)'
 author:
   - 'Steven Haryanto <stevenharyanto@gmail.com>'
-generated_by: 'Dist::Zilla version 1.100520'
+build_requires:
+  Module::Build: 0.3601
+configure_requires:
+  Module::Build: 0.3601
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.102343, CPAN::Meta::Converter version 2.102400'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -10,8 +15,8 @@ meta-spec:
 name: Business-ID-NIK
 requires:
   DateTime: 0
-  ExtUtils::MakeMaker: 6.11
-  Pod::Coverage: 0.18
-  Test::More: 0
-  Test::Pod::Coverage: 1.08
-version: 0.02
+  perl: 5.010000
+resources:
+  homepage: http://search.cpan.org/dist/Business-ID-NIK/
+  repository: http://github.com/sharyanto/perl-Business-ID-NIK
+version: 0.03

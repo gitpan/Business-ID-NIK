@@ -1,5 +1,8 @@
 Revision history for Business-ID-NIK
 
+0.03    2011-02-10
+        Fixes to dzil files, 'use parent' in ::KTP alias package.
+
 0.02    2010-02-26
         Generate META.yml (using Dist::Zilla)
 

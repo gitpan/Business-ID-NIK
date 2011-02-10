@@ -3,11 +3,11 @@ NAME
     (NIK)
 
 VERSION
-    version 0.02
+    version 0.03
 
 SYNOPSIS
         use Business::ID::NIK;
-    
+
         # OO-style
 
         my $nik = Business::ID::NIK->new($str);
@@ -84,46 +84,11 @@ FUNCTIONS
 
     Exported by default.
 
-BUGS
-    The list of valid province codes in the program might need to be updated
-    from time to time.
-
-    Please report any bugs or feature requests to "bug-business-id-nik at
-    rt.cpan.org", or through the web interface at
-    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Business-ID-NIK>. I will
-    be notified, and then you'll automatically be notified of progress on
-    your bug as I make changes.
-
-SUPPORT
-    You can find documentation for this module with the perldoc command.
-
-        perldoc Business::ID::NIK
-
-    You can also look for information at:
-
-    *   RT: CPAN's request tracker
-
-        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Business-ID-NIK>
-
-    *   AnnoCPAN: Annotated CPAN documentation
-
-        <http://annocpan.org/dist/Business-ID-NIK>
-
-    *   CPAN Ratings
-
-        <http://cpanratings.perl.org/d/Business-ID-NIK>
-
-    *   Search CPAN
-
-        <http://search.cpan.org/dist/Business-ID-NIK/>
-
-    1;
-
 AUTHOR
-      Steven Haryanto <stevenharyanto@gmail.com>
+    Steven Haryanto <stevenharyanto@gmail.com>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2010 by Steven Haryanto.
+    This software is copyright (c) 2011 by Steven Haryanto.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.

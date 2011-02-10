@@ -1,5 +1,7 @@
 package Business::ID::NIK;
-our $VERSION = '0.02';
+BEGIN {
+  $Business::ID::NIK::VERSION = '0.03';
+}
 # ABSTRACT: Validate Indonesian citizenship registration number (NIK)
 
 
@@ -81,7 +83,7 @@ sub validate {
 	    return;
 	}
 	if (/^(..)/ and !exists($provinces{$1})) {
-	    $self->{_err} = "unknown province code"; 
+	    $self->{_err} = "unknown province code";
 	    return;
 	}
 	my ($d, $m, $y) = /^\d{6}(..)(..)(..)/;
@@ -165,6 +167,7 @@ sub validate_nik {
     Business::ID::NIK->new($str)->validate();
 }
 
+1;
 
 __END__
 =pod
@@ -175,12 +178,12 @@ Business::ID::NIK - Validate Indonesian citizenship registration number (NIK)
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
     use Business::ID::NIK;
-    
+
     # OO-style
 
     my $nik = Business::ID::NIK->new($str);
@@ -270,52 +273,13 @@ C<errstr> method).
 
 Exported by default.
 
-=head1 BUGS
-
-The list of valid province codes in the program might need to be
-updated from time to time.
-
-Please report any bugs or feature requests to C<bug-business-id-nik at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Business-ID-NIK>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Business::ID::NIK
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Business-ID-NIK>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Business-ID-NIK>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Business-ID-NIK>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Business-ID-NIK/>
-
-=back
-
-1;
-
 =head1 AUTHOR
 
-  Steven Haryanto <stevenharyanto@gmail.com>
+Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by Steven Haryanto.
+This software is copyright (c) 2011 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
