@@ -1,176 +1,107 @@
 package Business::ID::NIK;
-BEGIN {
-  $Business::ID::NIK::VERSION = '0.03';
-}
-# ABSTRACT: Validate Indonesian citizenship registration number (NIK)
 
-
+use 5.010001;
 use warnings;
 use strict;
+
 use DateTime;
+use Locale::ID::Locality qw(list_id_localities);
+use Locale::ID::Province qw(list_id_provinces);
+
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(validate_nik);
+our @EXPORT = qw(parse_nik);
 
-# legend: S = not enough samples, SS = very few samples, D = dubious
-# (other province also have lots of samples)
+our $VERSION = '0.04'; # VERSION
 
-my %provinces = (
-    '01' => undef, # doesn't seem to be "Nanggroe Aceh Darussalam"
-    '02' => "Sumatera Utara",
-    '03' => "Sumatera Barat",
-    '04' => "Riau",
-    '05' => "Jambi", # S
-    '06' => "Sumatera Selatan",
-    '07' => "Bengkulu",
-    '08' => "Lampung",
-    '09' => "DKI Jakarta",
-    '10' => "Jawa Barat",
-    '11' => "Jawa Tengah", # D=NAD
-    '12' => "Jawa Timur",
-    '13' => "Sumatera Barat", # D=DIY
-    '14' => "Riau",
-    '15' => "Jambi",
-    '16' => "Sumatera Selatan",
-    # where are the other Kalimantans?
-    '17' => "Kalimantan Timur",
-    '18' => "Lampung",
-    '19' => "Kepulauan Bangka Belitung",
-    '20' => "Sulawesi Tenggara",
-    '21' => "Kepulauan Riau", # D=Sulawesi Selatan
-    '22' => "Bali",
-    '23' => "Nusa Tenggara Barat",
-    '24' => "Nusa Tenggara Timur",
-    '25' => "Maluku",
-    '26' => "Sulawesi Utara", # S
-    '27' => undef, # SS
-    '28' => undef, # SS
-    '29' => undef, # SS, doesn't exist?
-    '30' => "Banten",
-    '31' => undef, # SS
-    '32' => "DKI/Jawa Barat/Banten", # lots of number beginning with this, national?
-    '33' => "Jawa Tengah",
-    '34' => "DI Yogyakarta",
-    '35' => "Jawa Timur",
-    '36' => "Banten",
-    '37' => undef, # SS
-    '38' => undef, # SS
-    );
+our %SPEC;
 
+$SPEC{parse_nik} = {
+    v => 1.1,
+    summary => 'Parse Indonesian citizenship registration number (NIK)',
+    args => {
+        nik => {
+            summary => 'Input NIK to be validated',
+            pos => 0,
+            req => 1,
+        },
+        check_province => {
+            summary => 'Whether to check for known province codes',
+            schema  => [bool => default => 1],
+        },
+        check_locality => {
+            summary => 'Whether to check for known locality (city) codes',
+            schema  => [bool => default => 1],
+        },
+    },
+};
+sub parse_nik {
+    my %args = @_;
 
-sub new {
-    my ($class, $str) = @_;
-    bless {
-	_str => $str,
-	_err => undef, # errstr
-	_res => undef, # validation result cache
-	_dob => undef,
-	_gender => undef,
-    }, $class;
-}
-
-
-sub validate {
-    my ($self, $another) = @_;
-    return validate_nik($another) if $another;
-    return $self->{_res} if defined($self->{_res});
-
-    $self->{_res} = 0;
-    for ($self->{_str}) {
-	s/\D+//g;
-	if (length != 16) {
-	    $self->{_err} = "not 16 digit";
-	    return;
-	}
-	if (/^(..)/ and !exists($provinces{$1})) {
-	    $self->{_err} = "unknown province code";
-	    return;
-	}
-	my ($d, $m, $y) = /^\d{6}(..)(..)(..)/;
-	if ($d > 40) {
-	    $self->{_gender} = 'F';
-	    $d -= 40;
-	} else {
-	    $self->{_gender} = 'M';
-	}
-	my $today = DateTime->today;
-	$y += int($today->year / 100) * 100;
-	$y -= 100 if $y > $today->year;
-	eval { $self->{_dob} = DateTime->new(day=>$d, month=>$m, year=>$y) };
-	if ($@) {
-	    $self->{_err} = "invalid date of birth: $d-$m-$y";
-	    return;
-	}
-	/(....)$/;
-	if ($1 < 1) {
-	    $self->{_err} = "serial starts from 1, not 0";
-	    return;
-	}
+    state $provinces;
+    if (!$provinces) {
+        my $res = list_id_provinces(detail => 1);
+        return [500, "Can't get list of provinces: $res->[0] - $res->[1]"]
+            if $res->[0] != 200;
+        $provinces = { map {$_->{bps_code} => $_} @{$res->[2]} };
     }
-    $self->{_res} = 1;
-}
 
+    my $nik = $args{nik} or return [400, "Please specify nik"];
+    my $res = {};
 
-sub errstr {
-    my ($self) = @_;
-    $self->validate and return;
-    $self->{_err};
-}
+    $nik =~ s/\D+//g;
+    return [400, "Not 16 digit"] unless length($nik) == 16;
 
+    $res->{prov_code} = substr($nik, 0, 2);
+    if ($args{check_province} // 1) {
+        my $p = $provinces->{ $res->{prov_code} };
+        $p or return [400, "Unknown province code"];
+        $res->{prov_eng_name} = $p->{eng_name};
+        $res->{prov_ind_name} = $p->{ind_name};
+    }
 
-sub normalize {
-    my ($self, $another) = @_;
-    return Business::ID::NIK->new($another)->normalize if $another;
-    $self->validate or return;
-    $self->{_str};
-}
+    $res->{loc_code}  = substr($nik, 0, 4);
+    if ($args{check_locality} // 1) {
+        my $lres = list_id_localities(
+            detail => 1, bps_code => $res->{loc_code});
+        return [500, "Can't check locality: $lres->[0] - $lres->[1]"]
+            unless $lres->[0] == 200;
+        my $l = $lres->[2][0];
+        $l or return [400, "Unknown locality code"];
+        #$res->{loc_eng_name} = $p->{eng_name};
+        $res->{loc_ind_name} = $l->{ind_name};
+        $res->{loc_type} = $l->{type};
+    }
 
+    my ($d, $m, $y) = $nik =~ /^\d{6}(..)(..)(..)/;
+    if ($d > 40) {
+        $res->{gender} = 'F';
+        $d -= 40;
+    } else {
+        $res->{gender} = 'M';
+    }
+    my $today = DateTime->today;
+    $y += int($today->year / 100) * 100;
+    $y -= 100 if $y > $today->year;
+    eval { $res->{dob} = DateTime->new(day=>$d, month=>$m, year=>$y) };
+    if ($@) {
+        return [400, "Invalid date of birth: $d-$m-$y"];
+    }
 
-sub pretty { normalize(@_) }
+    $res->{serial} = substr($nik, 12);
+    return [400, "Serial starts from 1, not 0"] if $res->{serial} < 1;
 
-
-sub area_code {
-    my ($self) = @_;
-    $self->validate or return;
-    $self->{_str} =~ /^(\d{6})/;
-    $1;
-}
-
-
-sub date_of_birth {
-    my ($self) = @_;
-    $self->validate or return;
-    $self->{_dob};
-}
-
-
-sub dob { date_of_birth(@_) }
-
-
-sub gender {
-    my ($self) = @_;
-    $self->validate or return;
-    $self->{_gender};
-}
-
-
-sub serial {
-    my ($self) = @_;
-    $self->validate or return;
-    $self->{_str} =~ /(\d{4})$/;
-    $1;
-}
-
-
-sub validate_nik {
-    my ($str) = @_;
-    Business::ID::NIK->new($str)->validate();
+    [200, "OK", $res];
 }
 
 1;
+# ABSTRACT: Validate Indonesian citizenship registration number (NIK)
 
 __END__
+
 =pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -178,100 +109,30 @@ Business::ID::NIK - Validate Indonesian citizenship registration number (NIK)
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
-    use Business::ID::NIK;
+    use Business::ID::NIK qw(parse_nik);
 
-    # OO-style
-
-    my $nik = Business::ID::NIK->new($str);
-    die "Invalid NIK!" unless $nik->validate;
-
-    print $nik->area_code, "\n";
-    print $nik->date_of_birth, "\n"; # also, dob()
-    print $nik->gender, "\n"; # M for male, or F for female
-    print $nik->serial, "\n";
-
-    # procedural style
-
-    validate_nik($str) or die "Invalid NIK!";
+    my $res = parse_nik(nik => "3273010119800002");
 
 =head1 DESCRIPTION
 
-This module can be used to validate Indonesian citizenship
-registration number, Nomor Induk Kependudukan (NIK), or more popularly
-known as Nomor Kartu Tanda Penduduk (Nomor KTP), because NIK is
-displayed on the KTP (citizen identity card).
+This module can be used to validate Indonesian citizenship registration number,
+Nomor Induk Kependudukan (NIK), or more popularly known as Nomor Kartu Tanda
+Penduduk (Nomor KTP), because NIK is displayed on the KTP (citizen identity
+card).
 
 NIK is composed of 16 digits as follow:
 
  pp.DDSS.ddmmyy.ssss
 
-pp.DDSS is a 6-digit area code where the NIK was registered (it used
-to be but nowadays not always [citation needed] composed as: pp
-2-digit province code, DD 2-digit city/district [kota/kabupaten] code,
-SS 2-digit subdistrict [kecamatan] code), ddmmyy is date of birth of
-the citizen (dd will be added by 40 for female), ssss is 4-digit
-serial starting from 1.
-
-=head1 METHODS
-
-=head2 new $str
-
-Create a new C<Business::ID::NIK> object.
-
-=head2 validate()
-
-Return true if NIK is valid, or false if otherwise. In the case of NIK
-being invalid, you can call the errstr() method to get a description
-of the error.
-
-=head2 errstr()
-
-Return validation error of NIK, or undef if no error is found. See
-C<validate()>.
-
-=head2 normalize()
-
-Return formatted NIK, or undef if NIK is invalid.
-
-=head2 pretty()
-
-Alias for normalize().
-
-=head2 area_code()
-
-Return 6-digit province code + city/district + subdistrict component of NIK.
-
-=head2 date_of_birth()
-
-Return a L<DateTime> object containing the date of birth component of
-the NIK, or undef if NIK is invalid.
-
-=head2 dob()
-
-Alias for day_of_birth()
-
-=head2 gender()
-
-Return gender ('M' for male and 'F' for female), or undef if NIK is
-invalid.
-
-=head2 serial()
-
-Return 4-digit serial component of NIK, or undef if NIK is invalid.
-
-=head1 FUNCTIONS
-
-=head2 validate_nik($string)
-
-Return true if NIK is valid, or false if otherwise. If you want to
-know the error details, you need to use the OO version (see the
-C<errstr> method).
-
-Exported by default.
+pp.DDSS is a 6-digit area code where the NIK was registered (it used to be but
+nowadays not always [citation needed] composed as: pp 2-digit province code, DD
+2-digit city/district [kota/kabupaten] code, SS 2-digit subdistrict [kecamatan]
+code), ddmmyy is date of birth of the citizen (dd will be added by 40 for
+female), ssss is 4-digit serial starting from 1.
 
 =head1 AUTHOR
 
@@ -279,10 +140,38 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Steven Haryanto.
+This software is copyright (c) 2013 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
-=cut
+=head1 FUNCTIONS
 
+
+None are exported by default, but they are exportable.
+
+=head2 parse_nik(%args) -> [status, msg, result, meta]
+
+Arguments ('*' denotes required arguments):
+
+=over 4
+
+=item * B<check_locality> => I<bool> (default: 1)
+
+Whether to check for known locality (city) codes.
+
+=item * B<check_province> => I<bool> (default: 1)
+
+Whether to check for known province codes.
+
+=item * B<nik>* => I<any>
+
+Input NIK to be validated.
+
+=back
+
+Return value:
+
+Returns an enveloped result (an array). First element (status) is an integer containing HTTP status code (200 means OK, 4xx caller error, 5xx function error). Second element (msg) is a string containing error message, or 'OK' if status is 200. Third element (result) is optional, the actual result. Fourth element (meta) is called result metadata and is optional, a hash that contains extra information.
+
+=cut

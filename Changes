@@ -1,11 +1,26 @@
 Revision history for Business-ID-NIK
 
-0.03    2011-02-10
-        Fixes to dzil files, 'use parent' in ::KTP alias package.
+0.04    2013-09-09 (SHARYANTO)
 
-0.02    2010-02-26
-        Generate META.yml (using Dist::Zilla)
+        [INCOMPATIBLE CHANGES]
 
-0.01    2009-10-06
-        First version, released on an unsuspecting world.
+        - Replace interface (validate_nik() and OO interface) with Rinci-based
+          parse_nik().
 
+        - Use list of provinces and localities from, respectively,
+          Locale::ID::Province and Locale::ID::Locality.
+
+
+0.03    2011-02-10 (SHARYANTO)
+
+        - Fixes to dzil files, 'use parent' in ::KTP alias package.
+
+
+0.02    2010-02-26 (SHARYANTO)
+
+        - Generate META.yml (using Dist::Zilla)
+
+
+0.01    2009-10-06 (SHARYANTO)
+
+        - First version, released on an unsuspecting world.
