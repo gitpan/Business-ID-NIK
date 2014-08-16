@@ -1,11 +1,22 @@
 Revision history for Business-ID-NIK
 
+0.05     2014-08-16 (SHARYANTO) - Happy 19th CPAN Day!
+
+         - Add CLI script(s).
+
+
 0.04    2013-09-09 (SHARYANTO)
 
         [INCOMPATIBLE CHANGES]
 
         - Replace interface (validate_nik() and OO interface) with Rinci-based
           parse_nik().
+
+        [REMOVED FEATURES]
+
+        - Remove alias module Business::ID::SIM, for making things simpler.
+
+        [ENHANCEMENTS]
 
         - Use list of provinces and localities from, respectively,
           Locale::ID::Province and Locale::ID::Locality.

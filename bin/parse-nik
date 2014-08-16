@@ -1,0 +1,83 @@
+#!perl
+
+# Note: This script is a CLI interface to Riap function /Business/ID/NIK/parse_nik
+# and generated automatically using Dist::Zilla::Plugin::Rinci::ScriptFromFunc version 0.01
+
+our $DATE = '2014-08-16'; # DATE
+our $VERSION = '0.05'; # VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use Perinci::CmdLine::Any -prefer_lite=>1;
+
+Perinci::CmdLine::Any->new(
+    url => "/Business/ID/NIK/parse_nik",
+)->run;
+
+# ABSTRACT: Parse Indonesian citizenship registration number (NIK)
+# PODNAME: parse-nik
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+parse-nik - Parse Indonesian citizenship registration number (NIK)
+
+=head1 VERSION
+
+This document describes version 0.05 of parse-nik (from Perl distribution Business-ID-NIK), released on 2014-08-16.
+
+=head1 SYNOPSIS
+
+Usage:
+
+ % parse-nik
+
+Examples:
+
+ TODO
+
+To see all options:
+
+ % parse-nik --help
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+ TODO
+
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/Business-ID-NIK>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-Business-ID-NIK>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website L<https://rt.cpan.org/Public/Dist/Display.html?Name=Business-ID-NIK>
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
+
+=head1 AUTHOR
+
+Steven Haryanto <stevenharyanto@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Steven Haryanto.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
